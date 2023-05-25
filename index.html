@@ -1,1 +1,149 @@
-<h1>Bello bellt</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Landing Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        h1 {
+            font-size: 4rem;
+            text-align: center;
+        }
+
+        p {
+            font-size: 1.5rem;
+            text-align: center;
+            max-width: 600px;
+        }
+    </style>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            document.body.appendChild(canvas);
+
+            let points = [];
+            const pointCount = 50;
+            const maxDistance = 200;
+
+            class Point {
+                constructor(x, y, dx, dy) {
+                    this.x = x;
+                    this.y = y;
+                    this.dx = dx;
+                    this.dy = dy;
+                }
+
+                update() {
+                    this.x += this.dx;
+                    this.y += this.dy;
+
+                    if (this.x > canvas.width || this.x < 0) {
+                        this.dx = -this.dx;
+                    }
+
+                    if (this.y > canvas.height || this.y < 0) {
+                        this.dy = -this.dy;
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fff';
+                    ctx.fill();
+                    ctx.closePath();
+                }
+            }
+
+            function createPoints() {
+                points = [];
+                for (let i = 0; i < pointCount; i++) {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * canvas.height;
+                    const dx = Math.random() * 2 - 1;
+                    const dy = Math.random() * 2 - 1;
+                    points.push(new Point(x, y, dx, dy));
+                }
+            }
+
+            function drawLines() {
+                for (let i = 0; i < points.length; i++) {
+                    for (let j = i + 1; j < points.length; j++) {
+                        const dx = points[i].x - points[j].x;
+                        const dy = points[i].y - points[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < maxDistance) {
+                            ctx.beginPath();
+                            ctx.moveTo(points[i].x, points[i].y);
+                            ctx.lineTo(points[j].x, points[j].y);
+                            ctx.strokeStyle = `rgba(255, 255, 255, ${1 - distance / maxDistance})`;
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                            ctx.closePath();
+                        }
+                    }
+                }
+            }
+
+            function update() {            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (const point of points) {
+                point.update();
+                point.draw();
+            }
+
+            drawLines();
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createPoints();
+        }
+
+        function mouseMoveHandler(e) {
+            points[0].x = e.clientX;
+            points[0].y = e.clientY;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('mousemove', mouseMoveHandler);
+
+        resizeCanvas();
+        setInterval(update, 1000 / 60);
+    });
+</script>
+</head>
+<body>
+    <h1>Welcome to Our Amazing Landing Page</h1>
+    <p>Discover the incredible features and services we offer. Explore the possibilities and get ready to be amazed!</p>
+</body>
+</html>
